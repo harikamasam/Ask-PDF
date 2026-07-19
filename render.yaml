@@ -1,0 +1,63 @@
+# AskPDF — Render Blueprint
+# Deploys the API web service and background worker as two services
+# that share the same environment variables and Redis queue.
+
+services:
+  - type: web
+    name: askpdf-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm run server
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: UPLOAD_DIR
+        value: uploads
+      - key: QUEUE_NAME
+        value: askpdf:jobs
+      - key: JOB_STALE_MINUTES
+        value: "30"
+      - key: SIMILARITY_THRESHOLD
+        value: "0.55"
+      - key: TOP_K
+        value: "5"
+
+  - type: worker
+    name: askpdf-worker
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm run worker
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: UPLOAD_DIR
+        value: uploads
+      - key: QUEUE_NAME
+        value: askpdf:jobs
+      - key: JOB_STALE_MINUTES
+        value: "30"
+      - key: SIMILARITY_THRESHOLD
+        value: "0.55"
+      - key: TOP_K
+        value: "5"
