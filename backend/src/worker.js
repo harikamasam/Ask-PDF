@@ -3,7 +3,20 @@ import { connectMongo } from './config/db.js';
 import { closeRedis, getBlockingRedisClient, getRedisClient } from './config/redis.js';
 import { cleanupStaleJobs, startCleanupInterval } from './pipeline/cleanup.js';
 import { processDocumentJob } from './pipeline/processDocument.js';
+import http from 'http';
 
+const PORT = process.env.PORT || 10000;
+http.createServer((req, res) => {
+  if (req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('OK');
+  } else {
+    res.writeHead(404);
+    res.end();
+  }
+}).listen(PORT, () => {
+  console.log(`Worker health check listening on port ${PORT}`);
+});
 assertRuntimeEnv();
 
 let shuttingDown = false;
